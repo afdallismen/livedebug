@@ -26,7 +26,7 @@ class UserController {
 
   static login(req, res) {
     User
-     .findOne(req.body.email)
+     .findOne({ email: req.body.email })
      .then(user => {
        if (user) {
          if (regis.checkPassword(req.body.password, user.password)) {
@@ -53,12 +53,14 @@ class UserController {
 
   static verify(req, res) {
     User
-     .findOneAndUpdate({
+     .findOne({
        email: req.body.email,
        verificationCode: req.body.verificationCode
-     }, {
-       $set: { isVerified: true }
      })
+     .then(user => {
+        user.isVerified = true
+        return user.save()
+      })
      .then(user => {
        if(user) {
          res.status(200).json(user);
